@@ -1,0 +1,29 @@
+<form id="loginForm" method="POST" action="/api/auth/login/">
+    {% csrf_token %}
+    <input id="username" type="text" name="username" placeholder="Username" required>
+    <input id="password" type="password" name="password" placeholder="Password" required>
+    <button id="login" type="submit">Login</button>
+</form>
+
+<script>
+document.getElementById('loginForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    const response = await fetch('/api/auth/login/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+    });
+
+    if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access);
+        localStorage.setItem('refresh_token', data.refresh);
+        window.location.href = '/function/'; // Redirect to the function page
+    } else {
+        alert('Login failed!');
+    }
+});
+</script>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Assign Doctor to Patient</title>
+</head>
+<body>
+<h3>Assign Doctor to Patient</h3>
+
+<p>Patient</p>
+<select id="selectPatient"></select>
+
+<p>Doctor</p>
+<select id="selectDoctor"></select>
+
+<br/><br/>
+<button onclick="assignSelected()">Assign</button>
+
+<script>
+const token = localStorage.getItem('access_token');
+if (!token) {
+    alert('No access token found, please login');
+    window.location.href = '/login/';
+}
+
+const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+};
+
+async function fetchPatients() {
+    const res = await fetch('/api/patients/', { headers });
+    if (!res.ok) {
+        alert('Failed to load patients');
+        return [];
+    }
+    return await res.json();
+}
+
+async function fetchDoctors() {
+    const res = await fetch('/api/doctors/', { headers });
+    if (!res.ok) {
+        alert('Failed to load doctors');
+        return [];
+    }
+    return await res.json();
+}
+
+async function populateDropdowns() {
+    const patients = await fetchPatients();
+    const doctors = await fetchDoctors();
+
+    const patientSelect = document.getElementById('selectPatient');
+    const doctorSelect = document.getElementById('selectDoctor');
+
+    patientSelect.innerHTML = '';
+    doctorSelect.innerHTML = '';
+
+    patients.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.textContent = p.name + ' (' + (p.email || '') + ')';
+        patientSelect.appendChild(option);
+    });
+
+    doctors.forEach(d => {
+        const option = document.createElement('option');
+        option.value = d.id;
+        option.textContent = d.name + ' (' + (d.specialization || '') + ')';
+        doctorSelect.appendChild(option);
+    });
+}
+
+async function assignSelected() {
+    const patientId = parseInt(document.getElementById('selectPatient').value);
+    const doctorId = parseInt(document.getElementById('selectDoctor').value);
+
+    if (isNaN(patientId) || isNaN(doctorId)) {
+        alert('Please select both patient and doctor');
+        return;
+    }
+
+    const res = await fetch('/api/mappings/', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ patient: patientId, doctor: doctorId })
+    });
+
+    if (res.ok) {
+        alert('Doctor assigned to patient successfully!');
+    } else {
+        const err = await res.json();
+        alert('Error assigning doctor: ' + JSON.stringify(err));
+    }
+}
+
+populateDropdowns();
+</script>
+</body>
+</html>

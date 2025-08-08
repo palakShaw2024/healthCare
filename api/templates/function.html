@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard - Patients & Doctors</title>
+</head>
+<body>
+<h1>Dashboard</h1>
+
+<h2>Patients</h2>
+<ul id="patientsList"></ul>
+<button onclick="showAddPatientForm()">Add Patient</button>
+
+<div id="addPatientForm" style="display:none;">
+    <input id="patientName" placeholder="Patient Name" />
+    <input id="patientEmail" placeholder="Patient Email" />
+    <button onclick="addPatient()">Save Patient</button>
+</div>
+
+<h2>Doctors</h2>
+<ul id="doctorsList"></ul>
+<button onclick="showAddDoctorForm()">Add Doctor</button>
+
+<div id="addDoctorForm" style="display:none;">
+    <input id="doctorName" placeholder="Doctor Name" />
+    <input id="doctorSpec" placeholder="Specialization" />
+    <button onclick="addDoctor()">Save Doctor</button>
+</div>
+
+<a href="/mapping/">Assign Doctors to Patients</a>
+
+<script>
+const token = localStorage.getItem('access_token');
+if (!token) {
+    alert('No access token found, please login');
+    window.location.href = '/login/';
+}
+
+const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+async function fetchPatients() {
+    const res = await fetch('/api/patients/', { headers });
+    const patients = await res.json();
+    const ul = document.getElementById('patientsList');
+    ul.innerHTML = '';
+    patients.forEach(p => {
+        const li = document.createElement('li');
+        li.textContent = `${p.name} (${p.email})`;
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deletePatient(p.id);
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+    });
+}
+
+async function fetchDoctors() {
+    const res = await fetch('/api/doctors/', { headers });
+    const doctors = await res.json();
+    const ul = document.getElementById('doctorsList');
+    ul.innerHTML = '';
+    doctors.forEach(d => {
+        const li = document.createElement('li');
+        li.textContent = `${d.name} (${d.specialization})`;
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => deleteDoctor(d.id);
+        li.appendChild(delBtn);
+        ul.appendChild(li);
+    });
+}
+
+function showAddPatientForm() {
+    document.getElementById('addPatientForm').style.display = 'block';
+}
+
+function showAddDoctorForm() {
+    document.getElementById('addDoctorForm').style.display = 'block';
+}
+
+async function addPatient() {
+    const name = document.getElementById('patientName').value;
+    const email = document.getElementById('patientEmail').value;
+    if (!name || !email) return alert('Fill in all patient fields');
+    const res = await fetch('/api/patients/', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ name, email })
+    });
+    if (res.ok) {
+        alert('Patient added!');
+        document.getElementById('addPatientForm').style.display = 'none';
+        fetchPatients();
+    } else {
+        alert('Error adding patient');
+    }
+}
+
+async function addDoctor() {
+    const name = document.getElementById('doctorName').value;
+    const specialization = document.getElementById('doctorSpec').value;
+    if (!name || !specialization) return alert('Fill in all doctor fields');
+    const res = await fetch('/api/doctors/', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ name, specialization })
+    });
+    if (res.ok) {
+        alert('Doctor added!');
+        document.getElementById('addDoctorForm').style.display = 'none';
+        fetchDoctors();
+    } else {
+        alert('Error adding doctor');
+    }
+}
+
+async function deletePatient(id) {
+    if (!confirm('Delete this patient?')) return;
+    const res = await fetch(`/api/patients/${id}/`, {
+        method: 'DELETE',
+        headers
+    });
+    if (res.ok) {
+        alert('Patient deleted');
+        fetchPatients();
+    } else {
+        alert('Error deleting patient');
+    }
+}
+
+async function deleteDoctor(id) {
+    if (!confirm('Delete this doctor?')) return;
+    const res = await fetch(`/api/doctors/${id}/`, {
+        method: 'DELETE',
+        headers
+    });
+    if (res.ok) {
+        alert('Doctor deleted');
+        fetchDoctors();
+    } else {
+        alert('Error deleting doctor');
+    }
+}
+
+// Initial load
+fetchPatients();
+fetchDoctors();
+</script>
+</body>
+</html>
