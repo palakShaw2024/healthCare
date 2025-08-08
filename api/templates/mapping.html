@@ -54,6 +54,11 @@ async function populateDropdowns() {
     const patientSelect = document.getElementById('selectPatient');
     const doctorSelect = document.getElementById('selectDoctor');
 
+    if (!patientSelect || !doctorSelect) {
+        console.error('Dropdown elements not found!');
+        return;
+    }
+
     patientSelect.innerHTML = '';
     doctorSelect.innerHTML = '';
 

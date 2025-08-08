@@ -82,7 +82,15 @@ function showAddDoctorForm() {
 async function addPatient() {
     const name = document.getElementById('patientName').value;
     const email = document.getElementById('patientEmail').value;
-    if (!name || !email) return alert('Fill in all patient fields');
+    console.log("Sending patient data:", { name, email });
+
+    if (!name || !email){
+        alert('Fill in all patient fields');
+        return;
+    } 
+    
+    
+    
     const res = await fetch('/api/patients/', {
         method: 'POST',
         headers,
@@ -93,7 +101,8 @@ async function addPatient() {
         document.getElementById('addPatientForm').style.display = 'none';
         fetchPatients();
     } else {
-        alert('Error adding patient');
+        const errorData = await res.json();
+        alert('Error adding patient'+ JSON.stringify(errorData));
     }
 }
 

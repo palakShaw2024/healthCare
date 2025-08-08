@@ -21,7 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        fields = ['name', 'email']
+        fields = ['id', 'name', 'email']
         read_only_fields = ['created_by']
 
 class DoctorSerializer(serializers.ModelSerializer):
