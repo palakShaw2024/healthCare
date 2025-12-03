@@ -12,6 +12,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from .serializers import RegisterSerializer, PatientSerializer, DoctorSerializer, PatientDoctorMappingSerializer, DoctorMappingSerializer
 from .models import Patient, Doctor, PatientDoctorMapping
 
+from django.http import HttpResponse
+
 # HTML Views
 def login(request):
     return render(request, 'login.html') 
@@ -24,6 +26,10 @@ def mappings_page(request):
 
 def register(request):
     return render(request, 'register.html')
+
+
+def hello_world(request):
+    return HttpResponse("Hello World!")
 
 # API Views
 class RegisterView(APIView):
@@ -65,6 +71,7 @@ class PatientDoctorMappingViewSet(viewsets.ModelViewSet):
 class PatientDoctorsView(generics.ListAPIView):
     serializer_class = DoctorMappingSerializer
     permission_classes = [IsAuthenticated]
+
     
     def get_queryset(self):
         patient_id = self.kwargs['patient_id']

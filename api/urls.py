@@ -6,8 +6,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 from .views import (
     RegisterView, PatientViewSet, DoctorViewSet, 
-    PatientDoctorMappingViewSet, PatientDoctorsView
+    PatientDoctorMappingViewSet, PatientDoctorsView ,hello_world
+
 )
+
 
 router = DefaultRouter()
 router.register(r'patients', PatientViewSet, basename='patient')
@@ -29,4 +31,6 @@ urlpatterns = [
     path('api/mappings/<int:patient_id>/', PatientDoctorsView.as_view(), name='patient-doctors'),
 
     path('admin/', admin.site.urls),
+    path('hello/', hello_world),
+    
 ]
